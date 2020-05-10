@@ -1,0 +1,2 @@
+class WebPageMetadata < ApplicationRecord
+end

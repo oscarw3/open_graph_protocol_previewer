@@ -12,9 +12,9 @@ export class AppComponent {
   constructor(private http: HttpClient){}  
 
   processImage() {
-    console.log("processing...");
-    this.http.get('/open_graph_previewer/process_image').subscribe(data => {
-      this.status = data['process'];
+    console.log("hi start processing...");
+    this.http.post('open_graph_previewer/start_processing', {"url": "https://linkedin.com/"}).subscribe(data => {
+      this.status = data['text'];
     });    
   }
 }
