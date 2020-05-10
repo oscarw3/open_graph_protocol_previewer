@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+
+  # Serve websocket cable requests in-process
+  mount ActionCable.server => '/cable'
+
   root 'open_graph_previewer#index'
   get 'open_graph_previewer/index'
   post 'open_graph_previewer/start_processing'

@@ -1076,6 +1076,11 @@ acorn@^6.4.1:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.4.1.tgz#531e58ba3f51b9dacb9a6646ca4debf5b14ca474"
   integrity sha512-ZVA9k326Nwrj3Cj9jlh3wGFutC2ZornPNARZwsNYqQYgN0EsV2d53w5RN/co65Ohn4sUAUtb1rSUAOD6XN9idA==
 
+actioncable@^5.2.0:
+  version "5.2.4"
+  resolved "https://registry.yarnpkg.com/actioncable/-/actioncable-5.2.4.tgz#744f555f16d87413044f81074a9cc4d2cf416502"
+  integrity sha512-2mCP0eKTjxtDWNPqP6xPar9a5i8F/pndrTHJGU6QDS1a77B+DlPEWzPRiyNAaNEGMY/9yTBOP3CXhR+8/zaVQw==
+
 aggregate-error@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/aggregate-error/-/aggregate-error-3.0.1.tgz#db2fe7246e536f40d9b5442a39e117d7dd6a24e0"
@@ -1113,6 +1118,13 @@ amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
   integrity sha1-SlKCrBZHKek2Gbz9OtFR+BfOkfU=
+
+angular2-actioncable@^6.0.2:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/angular2-actioncable/-/angular2-actioncable-6.0.2.tgz#8f19f3684586e103c838663200688629a8512112"
+  integrity sha512-O1Ck9QSIdgOl5z+iCuKwSaBIIoVIBJ+FaYsFQbk82tSrsXTMkE434qVdOCCbfUa1tJdDckqomkqkertYugF90Q==
+  dependencies:
+    actioncable "^5.2.0"
 
 ansi-colors@^3.0.0:
   version "3.2.4"
