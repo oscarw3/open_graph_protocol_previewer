@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import templateString from './app.component.html';
+import templateString from './previewer.component.html';
 
 
 @Component({
-  selector: 'hello-angular',
+  selector: 'previewer',
   template: templateString,
 })
-export class AppComponent {
+export class PreviewerComponent {
   status = 'Not Started';
   constructor(private http: HttpClient){}  
 

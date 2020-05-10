@@ -4,7 +4,7 @@ module.exports = {
   plugins: [
       new webpack.ContextReplacementPlugin(
         /angular(\\|\/)core/,
-        root('../../app/javascript/hello_angular'), // location of your src
+        root('../../app/javascript/angular'), // location of your src
         { }
       )
   ]
