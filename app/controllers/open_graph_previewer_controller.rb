@@ -3,7 +3,7 @@ class OpenGraphPreviewerController < ApplicationController
 
   def start_processing
     # simple validation, more validation done later
-    if params["url"] == nil
+    if params["url"] == nil || params["url"] == ""
       render(json: {"text": "no url provided", "status": 400})
       return
     end
