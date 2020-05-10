@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import templateString from './previewer.component.html';
 import { ActionCableService, Channel } from 'angular2-actioncable';
 import { Subscription } from 'rxjs';
+import { Guid } from "guid-typescript";
 
 @Component({
   selector: 'previewer',
@@ -14,7 +15,7 @@ export class PreviewerComponent implements OnInit, OnDestroy {
   processing = false;
   previewerForm: FormGroup;
   subscription: Subscription;
-  sessionID: string;
+  sessionID: Guid;
 
   constructor(
     private http: HttpClient,
@@ -27,7 +28,7 @@ export class PreviewerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.sessionID = '1234';
+    this.sessionID = Guid.create();
     // Open a connection and obtain a reference to the channel
     const channel: Channel = this.cableService
       .cable('ws://localhost:5000/cable')

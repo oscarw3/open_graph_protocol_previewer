@@ -3,10 +3,9 @@ class WebPageMetadataChannel < ApplicationCable::Channel
 
     def subscribed
         if params[:session_id] == nil || params[:session_id] == ''
-            puts('invalid')
+            logger.error("empty session_id")
+            return
         end
-        puts("hello im subscribed")
-        puts(params)
         stream_from(channel_name(params[:session_id]))
     end
 end  
