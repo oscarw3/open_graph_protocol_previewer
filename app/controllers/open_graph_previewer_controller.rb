@@ -7,7 +7,7 @@ class OpenGraphPreviewerController < ApplicationController
     # no need to broadcast since there's no url, return bad request
     # client side should handle this case
     if params["url"] == nil || params["url"] == ""
-      render(json: {"status": 400})
+      render(json: {}, status: 400)
       return
     end
     url = params["url"]
@@ -22,13 +22,13 @@ class OpenGraphPreviewerController < ApplicationController
     if !@web_page_metadata.errors.messages.empty? # return if there are validation errors
       @web_page_metadata.fail([])
       broadcast(@web_page_metadata)
-      render(json: {"status": 404})
+      render(json: {}, status: 404)
       return
     end
     broadcast(@web_page_metadata)
 
     process_url(url)
-    render(json: {"status": 200})
+    render(json: {}, status: 200)
   end
 
   def process_url(url)
