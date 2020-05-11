@@ -33,7 +33,7 @@ class OpenGraphPreviewerController < ApplicationController
 
   def process_url(url)
     Thread.new do
-      sleep(2.seconds)  # For testing asynchronous
+      # sleep(2.seconds)  # For testing asynchronous
       puts("thread starting")
 
       # open graph protocol checking
