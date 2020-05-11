@@ -20,7 +20,7 @@ class OpenGraphPreviewerController < ApplicationController
 
     @web_page_metadata = WebPageMetadata.create(url: url, processing_status: "in_progress")
     if !@web_page_metadata.errors.messages.empty? # return if there are validation errors
-      @web_page_metadata.processing_status = "failed"
+      @web_page_metadata.fail([])
       broadcast(@web_page_metadata)
       render(json: {"status": 404})
       return
@@ -40,28 +40,28 @@ class OpenGraphPreviewerController < ApplicationController
       begin
         response = Faraday.get(url)
       rescue Faraday::ConnectionFailed => e
-        @web_page_metadata.processing_status = "failed"
-        @web_page_metadata.processing_errors = ["unable to connect to website", e]
-        @web_page_metadata.save()
+        @web_page_metadata.fail(["unable to connect to website", e])
         broadcast(@web_page_metadata)   
+        Thread.exit()
+      end
+      
+      if response.status != 200 || response.body == ''
+        @web_page_metadata.fail(["request to website failed"])
+        broadcast(@web_page_metadata)  
         Thread.exit()
       end
 
       begin
         open_graph = OGP::OpenGraph.new(response.body)
       rescue OGP::MissingAttributeError, OGP::MalformedSourceError => e
-        @web_page_metadata.processing_status = "failed"
-        @web_page_metadata.processing_errors = ["website is not open graph compliant", e]
-        @web_page_metadata.save()
+        @web_page_metadata.fail(["website is not open graph compliant", e])
         broadcast(@web_page_metadata)
         Thread.exit()   
       end
 
       image_url = open_graph.data["image"]  # assuming it's a single image per site, multiple images will return an array
       if image_url == nil
-        @web_page_metadata.processing_status = "failed"
-        @web_page_metadata.processing_errors = ["website does not have an open graph image"]
-        @web_page_metadata.save()
+        @web_page_metadata.fail(["website does not have an open graph image"])
         broadcast(@web_page_metadata.url)
         Thread.exit()   
       end
