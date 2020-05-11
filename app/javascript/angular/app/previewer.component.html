@@ -9,5 +9,16 @@
         <button class="button" [disabled]="disableButton()" type="submit">Get Image Preview</button>
     </div>
   </form>
-  <h2>URL: {{ url }}</h2>
+  <ng4-loading-spinner [timeout]="100000"></ng4-loading-spinner>
   <h2 *ngIf="processing">Processing...</h2>
+  <div *ngIf="imageURL">
+    <img [src]="imageURL" />
+  </div>
+  <div *ngIf="processingErrors != undefined && processingErrors.length > 0">
+    <p>Failed to display image due to the following errors:</p>
+    <ul>
+      <li *ngFor="let error of processingErrors">
+        {{ error }}
+      </li>
+    </ul>
+  </div>

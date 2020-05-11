@@ -3,21 +3,23 @@ import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import templateString from './previewer.component.html';
 import { ActionCableService, Channel } from 'angular2-actioncable';
+import { Ng4LoadingSpinnerService } from 'ng4-loading-spinner';
 
 @Component({
   selector: 'previewer',
   template: templateString,
 })
 export class PreviewerComponent {
-  image_url: string | undefined
+  imageURL: string | undefined
   processing = false;
   previewerForm: FormGroup;
-  processing_errors: string[];
+  processingErrors: string[];
 
   constructor(
     private http: HttpClient,
     private formBuilder: FormBuilder,
     private cableService: ActionCableService,
+    private spinnerService: Ng4LoadingSpinnerService
   ) {
     this.previewerForm = this.formBuilder.group({
       url: '',
@@ -47,24 +49,33 @@ export class PreviewerComponent {
       switch (metadata.processing_status) {
         case "in_progress":
           console.log("in_progress");
+          // reset values
+          this.imageURL = undefined;
+          this.processingErrors = [];
+
+          // start processing, show spinner
           this.processing = true;
+          this.spinnerService.show();
+
           break;
         case "failed":
           console.log("failed");
-          // stop processing
-          this.processing = false;
           // show errors
-          this.processing_errors = metadata.errors; 
-          // unsubscribe subscription
+          this.processingErrors = metadata.errors;
+          console.log(this.processingErrors);
+          // unsubscribe and stop processing
+          this.processing = false;
+          this.spinnerService.hide();
           subscription.unsubscribe(); 
           break;
         case "completed":
           console.log("completed");
-          // stop processing
-          this.processing = false;
           // show image
-          this.image_url = metadata.image_url;
-          // unsubscribe subscription
+          this.imageURL = metadata.image_url;
+
+          // unsubscribe and stop processing
+          this.processing = false;
+          this.spinnerService.hide();
           subscription.unsubscribe(); 
           break;
       }

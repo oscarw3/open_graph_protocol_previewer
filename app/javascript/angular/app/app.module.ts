@@ -4,6 +4,7 @@ import {HttpClientModule} from '@angular/common/http';
 import { PreviewerComponent } from './previewer.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActionCableService } from 'angular2-actioncable';
+import { Ng4LoadingSpinnerModule } from 'ng4-loading-spinner';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,8 @@ import { ActionCableService } from 'angular2-actioncable';
   imports: [
     BrowserModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    Ng4LoadingSpinnerModule.forRoot()
   ],
   providers: [ActionCableService],
   bootstrap: [PreviewerComponent]
