@@ -21,8 +21,15 @@ gem 'jbuilder', '~> 2.7'
 # gem 'redis', '~> 4.0'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
-# for procfile
+# For Procfile for using one command line to start app
 gem 'foreman'
+# open graph protocol parser
+gem 'ogp'
+# http client
+gem 'faraday', '~> 0.9.2'
+# url validator
+gem "validate_url"
+
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 

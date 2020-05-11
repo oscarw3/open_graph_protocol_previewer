@@ -18,6 +18,8 @@ ActiveRecord::Schema.define(version: 2020_05_10_022159) do
   create_table "web_page_metadata", force: :cascade do |t|
     t.string "url"
     t.string "image_url"
+    t.integer "processing_status", default: 0
+    t.string "processing_errors", default: [], array: true
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

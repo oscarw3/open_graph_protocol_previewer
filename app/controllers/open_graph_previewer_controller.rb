@@ -4,39 +4,82 @@ class OpenGraphPreviewerController < ApplicationController
   def index; end
 
   def start_processing
-    # simple validation, more validation done later
+    # no need to broadcast since there's no url, return bad request
+    # client side should handle this case
     if params["url"] == nil || params["url"] == ""
-      render(json: {"text": "no url provided", "status": 400})
+      render(json: {"status": 400})
       return
     end
-
-    if params["session_id"] == nil || params["session_id"] == ""
-      render(json: {"text": "no session_id provided", "status": 400})
-      return
-    end
-
     url = params["url"]
-    session_id = params["session_id"]
+    
+    @web_page_metadata = WebPageMetadata.find_by(url: url)
+    if @web_page_metadata != nil  # already been parsed or being parsed, can return
+      broadcast(@web_page_metadata)
+      return
+    end
 
-    process_url(url, session_id)
-    puts("rendering") # For testing asynchronous
-    render(json: {"text": "success", "status": 200})
+    @web_page_metadata = WebPageMetadata.create(url: url, processing_status: "in_progress")
+    if !@web_page_metadata.errors.messages.empty? # return if there are validation errors
+      @web_page_metadata.processing_status = "failed"
+      broadcast(@web_page_metadata)
+      render(json: {"status": 404})
+      return
+    end
+    broadcast(@web_page_metadata)
+
+    process_url(url)
+    render(json: {"status": 200})
   end
 
-  def process_url(url, session_id)
+  def process_url(url)
     Thread.new do
-      sleep(3.seconds)  # For testing asynchronous
-      # TODO: this needs to be done async and actual parsing needs to be done
-      @web_page_metadata = WebPageMetadata.find_by(url: url)
-      if @web_page_metadata == nil
-        @web_page_metadata = WebPageMetadata.create(url: url)
+      sleep(10.seconds)  # For testing asynchronous
+      puts("thread starting")
+
+      # open graph protocol checking
+      begin
+        response = Faraday.get(url)
+      rescue Faraday::ConnectionFailed => e
+        @web_page_metadata.processing_status = "failed"
+        @web_page_metadata.processing_errors = ["unable to connect to website", e]
+        @web_page_metadata.save()
+        broadcast(@web_page_metadata)   
+        Thread.exit()
       end
-  
-      # broadcast to channel
-        ActionCable.server.broadcast(channel_name(session_id),
-        url: url,
-      )
-      puts("thread done") # For testing asynchronous
+
+      begin
+        open_graph = OGP::OpenGraph.new(response.body)
+      rescue OGP::MissingAttributeError => e
+        @web_page_metadata.processing_status = "failed"
+        @web_page_metadata.processing_errors = ["website is not open graph compliant", e]
+        @web_page_metadata.save()
+        broadcast(@web_page_metadata)
+        Thread.exit()   
+      end
+
+      image_url = open_graph.data["image"]  # assuming it's a single image per site, multiple images will return an array
+      if image_url == nil
+        @web_page_metadata.processing_status = "failed"
+        @web_page_metadata.processing_errors = ["website does not have an open graph image"]
+        @web_page_metadata.save()
+        broadcast(@web_page_metadata.url)
+        Thread.exit()   
+      end
+
+      @web_page_metadata.image_url = image_url
+      @web_page_metadata.processing_status = "completed"
+      @web_page_metadata.save()
+      broadcast(@web_page_metadata)
     end
+  end
+
+  def broadcast(web_page_metadata)
+    # broadcast to channel
+    ActionCable.server.broadcast(channel_name(web_page_metadata.url),
+      web_page_url: web_page_metadata.url,
+      image_url: web_page_metadata.image_url,
+      processing_status: web_page_metadata.processing_status,
+      errors: web_page_metadata.errors.messages.values + web_page_metadata.processing_errors,
+    )  
   end
 end

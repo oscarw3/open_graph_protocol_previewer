@@ -1,21 +1,17 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import templateString from './previewer.component.html';
 import { ActionCableService, Channel } from 'angular2-actioncable';
-import { Subscription } from 'rxjs';
-import { Guid } from "guid-typescript";
 
 @Component({
   selector: 'previewer',
   template: templateString,
 })
-export class PreviewerComponent implements OnInit, OnDestroy {
+export class PreviewerComponent {
   url = '';
   processing = false;
   previewerForm: FormGroup;
-  subscription: Subscription;
-  sessionID: Guid;
 
   constructor(
     private http: HttpClient,
@@ -27,37 +23,28 @@ export class PreviewerComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit() {
-    this.sessionID = Guid.create();
+  onSubmit() {
+  
+    const postParams = this.previewerForm.value
+    this.url = postParams['url'];
+
     // Open a connection and obtain a reference to the channel
     const channel: Channel = this.cableService
       .cable('ws://localhost:5000/cable')
-      .channel('WebPageMetadataChannel', {session_id: this.sessionID});
-    console.log(channel);
-    // // Subscribe to incoming messages
-    this.subscription = channel.received().subscribe(metadata => {
+      .channel('WebPageMetadataChannel', {"web_page_url": this.url});
+
+    // Subscribe to incoming messages
+    const subscription = channel.received().subscribe(metadata => {
         console.log("message received");
         console.log(metadata);
+        this.processing = true;
+        this.url;
+        if (metadata.processing_status == "completed" || metadata.processing_status == "failed") {
+          subscription.unsubscribe();
+        }
     });
-  }
 
-  ngOnDestroy() {
-    // Unsubscribing from the messages Observable automatically
-    // unsubscribes from the ActionCable channel as well
-    this.subscription.unsubscribe();
-  }
-
-  onSubmit() {
-    const postParams = this.previewerForm.value
-    postParams['session_id'] = this.sessionID
-    this.http.post('open_graph_previewer/start_processing', postParams).subscribe(data => {
-      if (data['status'] != 200) {
-        console.log("I'm an error");
-        return;
-      }
-      console.log("processing...");
-      this.processing = true;
-      this.url = this.previewerForm.value['url'];
-    });    
+    // Only make the post request to start processing when ws is connected
+    channel.connected().subscribe(resp => this.http.post('open_graph_previewer/start_processing', postParams).subscribe());
   }
 }
