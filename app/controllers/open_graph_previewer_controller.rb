@@ -49,7 +49,7 @@ class OpenGraphPreviewerController < ApplicationController
 
       begin
         open_graph = OGP::OpenGraph.new(response.body)
-      rescue OGP::MissingAttributeError => e
+      rescue OGP::MissingAttributeError, OGP::MalformedSourceError => e
         @web_page_metadata.processing_status = "failed"
         @web_page_metadata.processing_errors = ["website is not open graph compliant", e]
         @web_page_metadata.save()

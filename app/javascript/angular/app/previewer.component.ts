@@ -9,9 +9,10 @@ import { ActionCableService, Channel } from 'angular2-actioncable';
   template: templateString,
 })
 export class PreviewerComponent {
-  url = '';
+  image_url: string | undefined
   processing = false;
   previewerForm: FormGroup;
+  processing_errors: string[];
 
   constructor(
     private http: HttpClient,
@@ -24,27 +25,53 @@ export class PreviewerComponent {
   }
 
   onSubmit() {
-  
     const postParams = this.previewerForm.value
-    this.url = postParams['url'];
+    const url = postParams['url'];
 
     // Open a connection and obtain a reference to the channel
     const channel: Channel = this.cableService
       .cable('ws://localhost:5000/cable')
-      .channel('WebPageMetadataChannel', {"web_page_url": this.url});
+      .channel('WebPageMetadataChannel', {"web_page_url": url});
 
     // Subscribe to incoming messages
-    const subscription = channel.received().subscribe(metadata => {
-        console.log("message received");
-        console.log(metadata);
-        this.processing = true;
-        this.url;
-        if (metadata.processing_status == "completed" || metadata.processing_status == "failed") {
-          subscription.unsubscribe();
-        }
-    });
+    this.createChannelSubscription(channel);
 
     // Only make the post request to start processing when ws is connected
     channel.connected().subscribe(resp => this.http.post('open_graph_previewer/start_processing', postParams).subscribe());
+  }
+
+  createChannelSubscription(channel: Channel) {
+    const subscription = channel.received().subscribe(metadata => {
+      console.log("message received");
+      console.log(metadata);
+      switch (metadata.processing_status) {
+        case "in_progress":
+          console.log("in_progress");
+          this.processing = true;
+          break;
+        case "failed":
+          console.log("failed");
+          // stop processing
+          this.processing = false;
+          // show errors
+          this.processing_errors = metadata.errors; 
+          // unsubscribe subscription
+          subscription.unsubscribe(); 
+          break;
+        case "completed":
+          console.log("completed");
+          // stop processing
+          this.processing = false;
+          // show image
+          this.image_url = metadata.image_url;
+          // unsubscribe subscription
+          subscription.unsubscribe(); 
+          break;
+      }
+    });
+  }
+
+  disableButton(): boolean {
+    return this.processing || this.previewerForm.value['url'] == ''
   }
 }

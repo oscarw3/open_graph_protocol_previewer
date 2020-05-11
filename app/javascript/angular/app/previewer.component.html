@@ -6,7 +6,7 @@
           URL:
         </label>
         <input id="url" type="text" formControlName="url">
-        <button class="button" type="submit">Get Image Preview</button>
+        <button class="button" [disabled]="disableButton()" type="submit">Get Image Preview</button>
     </div>
   </form>
   <h2>URL: {{ url }}</h2>
