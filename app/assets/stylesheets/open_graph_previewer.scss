@@ -1,6 +1,45 @@
 // Place all the styles related to the open_graph_previewer controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: https://sass-lang.com/
-h1 {
-    color: blue;
-  }
+
+$font-stack:    Helvetica, sans-serif;
+$primary-color: #0B4F6C;
+$secondary-color: #DCC7BE;
+$error-color: red;
+
+body {
+  font: 100% $font-stack;
+  color: $primary-color;
+  background-color: $secondary-color;
+}
+
+input {
+  width: 50%;
+  padding: 5px;
+}
+
+.input-wrapper {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+button {
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 3px;
+  border: 1px solid #e1e4e8;
+}
+
+.errors {
+  color: $error-color;
+}
+
+img {
+  border-radius: 8px;
+  padding-left: 5px;
+  padding-top: 20px;  
+  padding-bottom: 20px;
+  padding-right: 5px;
+  width: 75%;
+  height: auto;
+}

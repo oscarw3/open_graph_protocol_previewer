@@ -44,11 +44,8 @@ export class PreviewerComponent {
 
   createChannelSubscription(channel: Channel) {
     const subscription = channel.received().subscribe(metadata => {
-      console.log("message received");
-      console.log(metadata);
       switch (metadata.processing_status) {
         case "in_progress":
-          console.log("in_progress");
           // reset values
           this.imageURL = undefined;
           this.processingErrors = [];
@@ -59,30 +56,27 @@ export class PreviewerComponent {
 
           break;
         case "failed":
-          console.log("failed");
           // show errors
           this.processingErrors = metadata.errors;
-          console.log(this.processingErrors);
           // unsubscribe and stop processing
           this.processing = false;
           this.spinnerService.hide();
-          subscription.unsubscribe(); 
+          subscription.unsubscribe();
           break;
         case "completed":
-          console.log("completed");
           // show image
           this.imageURL = metadata.image_url;
 
           // unsubscribe and stop processing
           this.processing = false;
           this.spinnerService.hide();
-          subscription.unsubscribe(); 
+          subscription.unsubscribe();
           break;
       }
     });
   }
 
   disableButton(): boolean {
-    return this.processing || this.previewerForm.value['url'] == ''
+    return this.processing || this.previewerForm.value['url'] === ''
   }
 }
