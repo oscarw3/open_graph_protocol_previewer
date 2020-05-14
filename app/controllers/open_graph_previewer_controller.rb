@@ -15,6 +15,7 @@ class OpenGraphPreviewerController < ApplicationController
     @web_page_metadata = WebPageMetadata.find_by(url: url)
     if @web_page_metadata != nil  # already been parsed or being parsed, can return
       broadcast(@web_page_metadata)
+      render(json: {}, status: 200)
       return
     end
 
