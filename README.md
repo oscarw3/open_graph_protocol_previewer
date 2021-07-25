@@ -1,5 +1,6 @@
 
-# Oscar's Luna Take Home Assignment
+# Oscar's Open Graph Protocol Previewer
+Allows users to test and preview an Open Graph Image from any url
 
 ## Setup
 Make sure the following are installed:
